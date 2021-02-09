@@ -1,0 +1,79 @@
+---
+title: "Memo 5"
+author: "Maliat"
+date: "10/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+setwd("C:/Users/malia/OneDrive/Desktop/710 Memos")
+library(dplyr)
+library(foreign) # reads older version of Stata dataset
+library(ggplot2) #creating plots and graphs
+library(descr) # descriptive stats
+library(lattice) # histograms for frequncy distribution
+library(magrittr) # pipe operator
+library(tidyverse) #importing, cleaning, re-coding, and analyzing data
+library(sjmisc)
+library(haven) # Allows read.dta, which does not translate STATA data when uploading to R
+library(expss) # Allows for more creative ways to make tables
+
+library(Hmisc) # Calculates p-values for correlation coefficients
+
+```
+
+```{r}
+school1<-read_dta("C:\\Users\\malia\\Downloads\\school1.dta")
+school2<-read_dta("C:\\Users\\malia\\Downloads\\school2.dta")
+childoutcomes1<-read_dta("C:\\Users\\malia\\Downloads\\childoutcomes1.dta")
+```
+
+```{r}
+schools<-rbind(school1,school2)
+```
+
+```{r}
+schools.data<- merge(schools,childoutcomes1 ,by="CHILDID", all= TRUE)
+```
+
+```{r}
+one.way <- aov(reading ~ race, data = schools.data)
+summary(one.way)
+
+## Aggregate function: calculating means by group
+
+aggregate(x = schools.data$reading,                      
+          by = list(schools.data$race),               
+          FUN = mean,                          
+          na.rm=TRUE)   
+```
+```{r}
+one.way <- aov(WKSESL ~ math4, data = schools.data)
+summary(one.way)
+
+## Aggregate function: calculating means by group
+
+aggregate(x = schools.data$WKSESL,                      
+          by = list(schools.data$math4),               
+          FUN = mean,                          
+          na.rm=TRUE) 
+```
+
+```{r}
+schools.data%>%
+  select(race,math4)
+  crosstab(schools.data$race,schools.data$math4,prop.r = T, chisq = T, dnn=c("Race", "Math Score"))
+
+```
+```{r}
+correlate<-data.frame(schools.data$WKSESL,schools.data$reading)
+correlate2<-rcorr(as.matrix(correlate))
+correlate2
+```
+
+
